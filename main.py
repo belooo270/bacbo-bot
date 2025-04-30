@@ -8,6 +8,10 @@ TOKEN = os.environ.get('TOKEN')
 bot = telebot.TeleBot(TOKEN, parse_mode='HTML')
 usuarios_auto = set()
 
+# Variável para simular o "resultado real"
+def obter_resultado_real():
+    return random.choice(['🔵 <b>Player</b>', '🔴 <b>Banker</b>', '🟡 <b>Empate Dourado</b>'])
+
 def prever_bacbo():
     resultados = [
         ('🔵 <b>Player</b>', 49.995),
@@ -19,20 +23,29 @@ def prever_bacbo():
 
 def enviar_auto_previsao():
     while True:
-        resultado = prever_bacbo()
+        previsao = prever_bacbo()
+        resultado_real = obter_resultado_real()
+
+        acertou = previsao == resultado_real
+        status = '✅ <b>ACERTOU!</b>' if acertou else '❌ <b>ERROU!</b>'
+
         mensagem = (
             "━━━━━━━━━━━━━━━━━━━━\n"
             "🎲 <b>Bac Bo - Nova Previsão</b>\n"
             "━━━━━━━━━━━━━━━━━━━━\n\n"
-            f"✅ Resultado Previsto: {resultado}\n\n"
+            f"🧠 Previsão: {previsao}\n"
+            f"🎯 Resultado Real: {resultado_real}\n"
+            f"{status}\n\n"
             "⏳ Próxima previsão em 30s...\n"
             "━━━━━━━━━━━━━━━━━━━━"
         )
+
         for user_id in list(usuarios_auto):
             try:
                 bot.send_message(user_id, mensagem)
             except:
                 pass
+
         time.sleep(30)
 
 @bot.message_handler(commands=['start'])
